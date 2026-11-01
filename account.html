@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ark · Your alerts</title><link rel="stylesheet" href="account.css"></head>
+<body><main><a href="./" class="brand">Ark</a><h1>Safety in your language</h1>
+<p>Join the early list, save your preferences, and check official severe weather alerts.</p>
+<p class="notice">Pilot service. ZIP codes give an approximate location. Ark may miss alerts or be unavailable. Follow official local guidance and check <a href="https://www.weather.gov/">weather.gov</a>. In an emergency call 911.</p>
+<p id="status" role="status" aria-live="polite">Connecting…</p>
+<section id="signed-out" hidden><h2>Join or sign in</h2><p>We’ll email a secure sign-in link. Your saved preferences also enroll you in Ark’s early-access list.</p>
+<form id="login"><label>Email<input id="email" type="email" autocomplete="email" required maxlength="254"></label><button>Send sign-in link</button></form></section>
+<section id="signed-in" hidden><p id="identity"></p><button id="logout" type="button">Sign out</button>
+<h2>Your preferences</h2><form id="preferences"><label>U.S. ZIP code<input id="zip" pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code" required maxlength="5"></label>
+<label>Alert language<select id="language"><option value="en">English</option><option value="es">Español</option><option value="zh-Hans">中文</option><option value="vi">Tiếng Việt</option><option value="ar">العربية</option><option value="ht">Kreyòl ayisyen</option><option value="ko">한국어</option><option value="ru">Русский</option><option value="fil">Tagalog</option></select></label>
+<label class="check"><input id="sms" type="checkbox">I agree to receive recurring automated Ark severe-weather alert texts at my verified number. Frequency varies. Message and data rates may apply. Reply STOP to unsubscribe or turn this off and save. Consent is optional.</label><button>Save and join early list</button></form>
+<h2>Verify your phone for texts</h2><p>Text alerts require a verified phone number. Saving preferences with texts turned off stops future Ark dispatches.</p>
+<form id="phone-form"><label>Phone with country code<input id="phone" type="tel" autocomplete="tel" placeholder="+12125551234" pattern="\+[1-9][0-9]{7,14}" required></label><button>Send verification code</button></form>
+<form id="verify-form"><label>Verification code<input id="code" inputmode="numeric" autocomplete="one-time-code" required></label><button>Verify phone</button></form>
+<h2>Current severe weather alerts</h2><p>Severe and extreme alerts near your ZIP code’s center. Translations are automatic; the original official wording is included.</p><button id="refresh">Check alerts</button><p id="checked"></p><div id="alerts"></div>
+<h2>Your data</h2><p>Ark stores your email, verified phone, ZIP code, language, text consent and delivery records. These support your account and alerts. Providers: Supabase, Microsoft Translator, Twilio and ZIP lookup provider Zippopotam.us. Your ZIP is sent for location lookup; official alert text is sent for translation. Private credentials stay on the server.</p><button id="remove">Remove saved preferences and stop texts</button><p>This removes early-list enrollment. To request full account deletion, email <a href="mailto:ArkDevelopmentSolutions@protonmail.com">ArkDevelopmentSolutions@protonmail.com</a>.</p>
+</section></main><script src="config.js"></script><script type="module" src="account.js"></script></body></html>
