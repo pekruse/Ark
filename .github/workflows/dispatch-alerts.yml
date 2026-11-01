@@ -1,0 +1,39 @@
+name: Dispatch Ark alerts
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+permissions: {}
+concurrency:
+  group: ark-alert-dispatch
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    if: vars.ARK_SMS_DELIVERY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Dispatch all subscriber pages
+        env:
+          ARK_FUNCTION_URL: ${{ secrets.ARK_FUNCTION_URL }}
+          ARK_DISPATCH_SECRET: ${{ secrets.ARK_DISPATCH_SECRET }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.parse
+          base = os.environ['ARK_FUNCTION_URL'].rstrip('/') + '/dispatch'
+          cursor = None
+          for _ in range(100):
+              url = base + ('?after=' + urllib.parse.quote(cursor) if cursor else '')
+              request = urllib.request.Request(url, data=b'{}', headers={
+                  'Authorization': 'Bearer ' + os.environ['ARK_DISPATCH_SECRET'],
+                  'Content-Type': 'application/json'}, method='POST')
+              with urllib.request.urlopen(request, timeout=145) as response:
+                  result = json.load(response)
+              if result.get('failed', 0):
+                  raise RuntimeError('Some alert deliveries failed; inspect server delivery records.')
+              cursor = result.get('nextCursor')
+              if not cursor:
+                  break
+          else:
+              raise RuntimeError('Subscriber pagination exceeded pilot capacity')
+          PY
