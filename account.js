@@ -1,6 +1,12 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.4';
 const $ = id => document.getElementById(id);
 const status = text => { $('status').textContent = text; };
+function emailLink(email) {
+  const link = document.createElement('a');
+  link.href = 'mailto:' + encodeURIComponent(email);
+  link.textContent = email;
+  return link;
+}
 const config = window.ARK_CONFIG;
 let user, client;
 async function run(button, action) {
@@ -15,7 +21,7 @@ async function showSession(session) {
   $('signed-out').hidden = !!user;
   $('alerts').replaceChildren();
   if (!user) { status('Join the early list or sign in.'); return; }
-  $('identity').textContent = `Signed in as ${user.email}`;
+  $('identity').replaceChildren('Signed in as ', emailLink(user.email));
   const p = check(await client.from('preferences').select('*').eq('user_id',user.id).maybeSingle());
   $('zip').value = p?.zip || '';
   $('language').value = p?.language || 'en';
@@ -24,7 +30,7 @@ async function showSession(session) {
   status(p ? 'Your preferences are saved.' : 'Save your preferences to join the early list.');
 }
 if (!config?.supabaseUrl || !config?.supabaseAnonKey) {
-  status('Account and alert services are being set up. Email ArkDevelopmentSolutions@protonmail.com to join the early list.');
+  $('status').replaceChildren('Account and alert services are being set up. Email ', emailLink('ArkDevelopmentSolutions@protonmail.com'), ' to join the early list.');
 } else {
   client = createClient(config.supabaseUrl,config.supabaseAnonKey);
   // Schedule work outside the auth callback to avoid locking auth operations.
