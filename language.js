@@ -101,7 +101,10 @@
     return {IN:'hi',FR:'fr',BE:'fr',MC:'fr',BJ:'fr',BF:'fr',CD:'fr',CG:'fr',CI:'fr',GA:'fr',GN:'fr',ML:'fr',NE:'fr',SN:'fr',TG:'fr',BD:'bn',PT:'pt',BR:'pt',AO:'pt',MZ:'pt',CV:'pt',GW:'pt',ST:'pt',ID:'id',PK:'ur',IL:'he',VN:'vi',HT:'ht',KR:'ko',RU:'ru',PH:'tl',US:'en',GB:'en',AU:'en',NZ:'en',IE:'en'}[country]||browserLanguage();
   }
   let code='en',selected=false,manual=false,applying=false,dialog,selector,transcript,status,voiceButton,recognition,timer;
-  code=browserLanguage();selected=code!=='en';try{localStorage.removeItem('ark-site-language')}catch{}
+  code=browserLanguage();let carried=false,previewBase=null;
+  try{localStorage.removeItem('ark-site-language');const visit=sessionStorage.getItem('ark-visit-language');if(languages.some(item=>item[0]===visit)){code=visit;carried=true;manual=true;}}catch{}
+  selected=code!=='en';
+  function keepVisitLanguage(){try{sessionStorage.setItem('ark-visit-language',code);}catch{}}
   const tr=i=>code==='en'?data.keys[i]:data[code][i];
   const observer=new MutationObserver(()=>{if(!applying)apply();});
   function apply(){
@@ -138,14 +141,14 @@
     typingTimer=setInterval(()=>{common=Math.min(common+2,target.length);transcript.value=target.slice(0,common).join('');transcript.scrollLeft=transcript.scrollWidth;if(common===target.length)clearInterval(typingTimer);},35);
   }
   function stop(){clearInterval(typingTimer);clearTimeout(timer);try{recognition?.abort();}catch{}recognition=null;if(voiceButton)voiceLabel();}
-  function change(value){if(!languages.some(l=>l[0]===value))return;stop();code=value;selected=true;manual=true;apply();dialog?.close();}
+  function change(value){if(!languages.some(l=>l[0]===value))return;stop();previewBase=null;code=value;selected=true;manual=true;keepVisitLanguage();apply();dialog?.close();}
   const buttonStyle=document.createElement('style');buttonStyle.textContent=`.ark-change-language{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #D8C3A7;background:#F5EDE3;color:#6B4A2A;border-radius:999px;min-height:40px;padding:8px 13px;font:600 13px system-ui;cursor:pointer}.ark-language-dialog{font:16px/1.5 system-ui,sans-serif;max-width:470px;width:calc(100% - 32px);box-sizing:border-box;padding:28px;border:1px solid #D8C3A7;border-radius:22px;background:#FFFCF7;color:#2B2118;box-shadow:0 24px 90px #0005}.ark-language-dialog::backdrop{background:#100C08AA}.ark-language-dialog h2{font:700 27px/1.2 system-ui;margin:0 40px 14px 0}.ark-language-dialog p{font-size:14px;margin:12px 0}.ark-language-dialog label{display:block;font-size:14px;margin:15px 0}.ark-language-dialog select,.ark-language-dialog input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px;border:1px solid #BDA789;border-radius:10px;background:white;color:#2B2118;font:inherit}.ark-language-dialog button{font:600 14px system-ui;cursor:pointer;border:1px solid #BDA789;border-radius:10px;padding:12px;background:#F5EDE3;color:#573D24}.ark-language-dialog .language-close{float:right;padding:7px 12px;font-size:18px}.ark-language-dialog button:disabled{opacity:.55;cursor:default}.ark-language-dialog :focus-visible,.ark-change-language:focus-visible{outline:3px solid #BB8F54;outline-offset:3px}html[data-theme=dark] .ark-language-dialog{background:#29231D;color:#F3EADC;border-color:#68533A}html[data-theme=dark] .ark-language-dialog p{color:#CEBFAC!important}html[data-theme=dark] .ark-language-dialog select,html[data-theme=dark] .ark-language-dialog input{background:#171513;color:#F3EADC}html[data-theme=dark] .ark-language-dialog button,html[data-theme=dark] .ark-change-language{background:#33291E;color:#E7C99F;border-color:#6E5637}`;buttonStyle.textContent+=' #ark-language-voice{display:inline-flex;align-items:center;gap:12px;min-height:54px;padding:12px 18px;font-size:16px}#ark-language-voice svg{width:28px;height:28px;flex:none}#ark-language-voice[aria-pressed=true]{outline:3px solid #BB8F54;outline-offset:2px}';buttonStyle.textContent+=' .ark-language-dialog input.is-listening{border-color:#B88442;box-shadow:0 0 0 3px #BB8F5433;animation:ark-listening-glow 1.2s ease-in-out infinite}@keyframes ark-listening-glow{50%{box-shadow:0 0 0 5px #BB8F5466}}@media(prefers-reduced-motion:reduce){.ark-language-dialog input.is-listening{animation:none}}';document.head.append(buttonStyle);
-  let languagePromptShown=false;
+  let languagePromptShown=carried;
   function open(){
     languagePromptShown=true;
     if(!dialog){
       dialog=document.createElement('dialog');dialog.className='ark-language-dialog';dialog.setAttribute('aria-labelledby','ark-language-title');
-      dialog.innerHTML='<button type="button" class="language-close" aria-label="Close">×</button><h2 id="ark-language-title">Change language</h2><p>Read the Ark website in your language.</p><label>Website language<select></select></label><p>Changes apply instantly on this page. Language is detected again when you open another page.</p><button type="button" id="ark-language-voice">🎙 <span>Say a language name</span></button><p>Say a language name, such as “Español” or “Arabic.” Voice recognition uses your browser’s language and may send audio to its speech provider. Ark does not save audio.</p><label>What we heard (you can edit this)<input maxlength="100" autocomplete="off"></label><p role="status" aria-live="polite"></p>';
+      dialog.innerHTML='<button type="button" class="language-close" aria-label="Close">×</button><h2 id="ark-language-title">Change language</h2><p>Read the Ark website in your language.</p><label>Website language<select></select></label><button type="button" id="ark-language-voice">🎙 <span>Say a language name</span></button><p>Say a language name, such as “Español” or “Arabic.” Voice recognition uses your browser’s language and may send audio to its speech provider. Ark does not save audio.</p><label>What we heard (you can edit this)<input maxlength="100" autocomplete="off"></label><p role="status" aria-live="polite"></p>';
       document.body.append(dialog);selector=dialog.querySelector('select');transcript=dialog.querySelector('input');status=dialog.querySelector('[role=status]');voiceButton=dialog.querySelector('#ark-language-voice');
       for(const [value,label]of languages){const opt=document.createElement('option');opt.value=value;opt.textContent=label;selector.append(opt);}
       selector.addEventListener('change',()=>change(selector.value));
@@ -174,14 +177,24 @@
       };
     }
     status.textContent='';transcript.value='';apply();dialog.showModal();
-    if(!dialog.querySelector('.ark-location-disclosure')){const note=document.createElement('p');note.className='ark-location-disclosure';note.textContent='ipapi.co estimates your country to suggest a language. Manual changes apply only to this page.';dialog.append(note);}
+    if(!dialog.querySelector('.ark-location-disclosure')){const note=document.createElement('p');note.className='ark-location-disclosure';note.textContent='ipapi.co estimates your country to suggest a language. Language choices carry across pages for this visit.';dialog.append(note);}
     (voiceButton.disabled?selector:voiceButton).focus();
   }
   window.addEventListener('click',e=>{if(e.target.closest?.('.ark-change-language'))open();else if(e.target.closest?.('.ark-theme-toggle'))queueMicrotask(apply);},true);
   // The existing page bundle can render content after this script loads.
   const directionStyle=document.createElement('style');directionStyle.textContent='html[data-text-direction=rtl] h1,html[data-text-direction=rtl] h2,html[data-text-direction=rtl] h3,html[data-text-direction=rtl] p,html[data-text-direction=rtl] label,html[data-text-direction=rtl] .ark-language-dialog{direction:rtl;text-align:right}html[data-text-direction=rtl] .ark-device{direction:ltr}html[data-text-direction=rtl] .ark-device h3,html[data-text-direction=rtl] .ark-screen h4,html[data-text-direction=rtl] .ark-appgreeting,html[data-text-direction=rtl] .ark-location,html[data-text-direction=rtl] .ark-alert-message,html[data-text-direction=rtl] .ark-alert-source,html[data-text-direction=rtl] .ark-original-label,html[data-text-direction=rtl] .ark-help-card strong,html[data-text-direction=rtl] .ark-help-card span,html[data-text-direction=rtl] .ark-appfootnote{direction:rtl;text-align:right}.ark-location-disclosure{font:12px/1.5 system-ui;color:#887660}';document.head.append(directionStyle);
   // Disclose the country-only lookup in the same language controls it supports.
-  window.addEventListener('click',e=>{if(e.target.closest?.('.ark-change-language')&&dialog&&!dialog.querySelector('.ark-location-disclosure')){const note=document.createElement('p');note.className='ark-location-disclosure';note.textContent='On your first visit, ipapi.co estimates your country from your IP address to suggest a language. Ark does not store your IP or precise location. Manual language changes apply only to this page.';dialog.append(note);}},true);
+  window.addEventListener('click',e=>{if(e.target.closest?.('.ark-change-language')&&dialog&&!dialog.querySelector('.ark-location-disclosure')){const note=document.createElement('p');note.className='ark-location-disclosure';note.textContent='On your first visit, ipapi.co estimates your country from your IP address to suggest a language. Ark does not store your IP or precise location. Language choices carry across pages for this visit.';dialog.append(note);}},true);
+
+  window.addEventListener('ark-language-preview',event=>{
+    const value=event.detail?.code;
+    if(!value||!languages.some(item=>item[0]===value)){if(previewBase!==null){code=previewBase;previewBase=null;apply();}return;}
+    if(previewBase===null)previewBase=code;code=value;selected=true;apply();
+  });
+  window.addEventListener('ark-language-commit',event=>{
+    const value=event.detail?.code;if(languages.some(item=>item[0]===value))change(value);
+  });
+
   apply();setTimeout(apply,500);
   async function automaticCountry(){
     if(manual)return;
@@ -189,7 +202,7 @@
     if(!/^[A-Z]{2}$/.test(country||'')){
       try{const response=await fetch('https://ipapi.co/country/',{signal:AbortSignal.timeout(1800),credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok)return;country=(await response.text()).trim().toUpperCase();if(!/^[A-Z]{2}$/.test(country))return;try{sessionStorage.setItem('ark-country',country);}catch{}}catch{return;}
     }
-    if(manual)return;code=countryLanguage(country);selected=true;apply();
+    if(manual)return;code=countryLanguage(country);selected=true;keepVisitLanguage();apply();
   }
-  automaticCountry().finally(()=>setTimeout(()=>{if(!languagePromptShown)open();},600));
+  automaticCountry().finally(()=>{keepVisitLanguage();setTimeout(()=>{if(!languagePromptShown)open();},600);});
 })();
