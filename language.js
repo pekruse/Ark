@@ -33,7 +33,7 @@
         const target=index===undefined?source:source.replace(source.trim(),tr(index));
         if(node.nodeValue!==target)node.nodeValue=target;
       }
-      if(selected){const heading=document.querySelector('h1.rot');if(heading&&heading.textContent!==data.headlines[code])heading.textContent=data.headlines[code];if(heading){heading.lang=code;heading.dir=code==='ar'?'rtl':'ltr';}document.title='Ark · '+(heading?data.headlines[code]:tr(29));}
+      const heading=document.querySelector('h1.rot');if(heading){heading.querySelectorAll('span[lang]').forEach(span=>{const lang=span.lang==='zh'?'zh-CN':span.lang;const current=lang===code;span.dataset.headlineCurrent=String(current);span.setAttribute('aria-hidden',String(!current));});}if(selected)document.title='Ark · '+(heading?data.headlines[code]:tr(29));
       document.querySelectorAll('.ark-change-language').forEach(b=>{b.textContent='🌐 '+data.labels[code][0];b.setAttribute('aria-label',data.labels[code][0]);});
       const dark=document.documentElement.dataset.theme==='dark';
       document.querySelectorAll('.ark-theme-toggle').forEach(b=>{b.textContent=(dark?'☀ ':'☾ ')+data.labels[code][dark?2:1];});
