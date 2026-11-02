@@ -22,7 +22,7 @@ window.ARK_SITE_I18N = {
     'Account and alert services are being set up. Email','to join the early list.',
     'Change language','Website language','Say a language name','What we heard (you can edit this)',
     'Read the Ark website in your language.',
-    'Changes apply instantly on this page. Your choice is saved on this device.',
+    'Changes apply instantly on this page. Language is detected again when you open another page.',
     'Say a language name, such as “Español” or “Arabic.” Voice recognition uses your browser’s language and may send audio to its speech provider. Ark does not save audio.'
   ],
   headlines: {en:'Safety Speaks Every Language',es:'La seguridad habla todos los idiomas', 'zh-CN':'安全，说每一种语言',vi:'An toàn nói mọi ngôn ngữ',ar:'السلامة تتحدث كل اللغات',ht:'Sekirite pale tout lang',ko:'안전은 모든 언어로 말합니다',ru:'Безопасность говорит на всех языках',tl:'Kaligtasan sa bawat wika'},
@@ -52,7 +52,7 @@ window.ARK_SITE_I18N = {
     '. En una emergencia llama al 911.',
     'Los servicios de cuentas y alertas están en preparación. Escribe a','para unirte a la lista.',
     'Cambiar idioma','Idioma del sitio web','Di el nombre de un idioma','Lo que escuchamos (puedes editarlo)',
-    'Lee el sitio web de Ark en tu idioma.','Los cambios se aplican al instante en esta página. Tu elección se guarda en este dispositivo.',
+    'Lee el sitio web de Ark en tu idioma.','Los cambios se aplican al instante en esta página. El idioma se detecta de nuevo al abrir otra página.',
     'Di el nombre de un idioma, como “Español” o “Arabic”. El reconocimiento de voz utiliza el idioma de tu navegador y puede enviar audio a su proveedor. Ark no guarda el audio.'
   ],
   'zh-CN': [
@@ -72,7 +72,7 @@ window.ARK_SITE_I18N = {
     '试运行服务。邮政编码仅表示大致位置。Ark 可能遗漏警报或暂时不可用。请遵循当地官方指引，并查看',
     '。紧急情况下请拨打 911。','账户和警报服务正在筹备中。请发送邮件至','加入体验名单。',
     '切换语言','网站语言','说出一种语言的名称','识别的内容（可以修改）','以您的语言阅读 Ark 网站。',
-    '本页会立即切换语言。您的选择将保存在此设备上。',
+    '本页会立即切换语言。打开其他页面时会重新检测语言。',
     '请说出语言名称，例如“Español”或“Arabic”。语音识别使用浏览器语言，并可能向其语音服务商发送音频。Ark 不保存音频。'
   ],
   vi: [
@@ -92,7 +92,7 @@ window.ARK_SITE_I18N = {
     'Dịch vụ thử nghiệm. Mã ZIP chỉ vị trí gần đúng. Ark có thể bỏ sót cảnh báo hoặc không hoạt động. Hãy làm theo hướng dẫn chính thức tại địa phương và xem',
     '. Khi khẩn cấp, gọi 911.','Dịch vụ tài khoản và cảnh báo đang được thiết lập. Gửi email tới','để tham gia danh sách.',
     'Đổi ngôn ngữ','Ngôn ngữ trang web','Nói tên một ngôn ngữ','Nội dung nghe được (bạn có thể sửa)','Đọc trang web Ark bằng ngôn ngữ của bạn.',
-    'Thay đổi có hiệu lực ngay trên trang này. Lựa chọn được lưu trên thiết bị này.',
+    'Thay đổi có hiệu lực ngay trên trang này. Ngôn ngữ được phát hiện lại khi bạn mở trang khác.',
     'Nói tên một ngôn ngữ, chẳng hạn “Español” hoặc “Arabic”. Nhận dạng giọng nói dùng ngôn ngữ trình duyệt và có thể gửi âm thanh tới nhà cung cấp dịch vụ. Ark không lưu âm thanh.'
   ],
   ar: [
@@ -112,7 +112,7 @@ window.ARK_SITE_I18N = {
     'خدمة تجريبية. تحدد الرموز البريدية موقعًا تقريبيًا. قد يفوت Ark بعض التنبيهات أو يكون غير متاح. اتبع الإرشادات المحلية الرسمية وراجع',
     '. في حالات الطوارئ اتصل بالرقم 911.','يجري إعداد خدمات الحسابات والتنبيهات. راسل','للانضمام إلى القائمة.',
     'تغيير اللغة','لغة الموقع','قل اسم لغة','ما سمعناه (يمكنك تعديله)','اقرأ موقع Ark بلغتك.',
-    'تُطبق التغييرات فورًا في هذه الصفحة. يُحفظ اختيارك على هذا الجهاز.',
+    'تُطبق التغييرات فورًا في هذه الصفحة. تُكتشف اللغة مجددًا عند فتح صفحة أخرى.',
     'قل اسم لغة مثل «Español» أو «Arabic». يستخدم التعرف على الصوت لغة متصفحك وقد يرسل الصوت إلى مزود خدمة الكلام. لا يحفظ Ark الصوت.'
   ],
   ht: [
@@ -132,7 +132,7 @@ window.ARK_SITE_I18N = {
     'Sèvis pilòt. Kòd postal yo bay yon pozisyon apwoksimatif. Ark ka rate alèt oswa pa disponib. Swiv konsèy ofisyèl lokal yo epi gade',
     '. Nan yon ijans rele 911.','N ap prepare sèvis kont ak alèt yo. Voye yon imèl bay','pou antre sou lis la.',
     'Chanje lang','Lang sit entènèt la','Di non yon lang','Sa nou tande (ou ka korije li)','Li sit Ark la nan lang ou.',
-    'Chanjman yo fèt touswit sou paj sa a. Chwa ou sove sou aparèy sa a.',
+    'Chanjman yo fèt touswit sou paj sa a. N ap detekte lang lan ankò lè ou louvri yon lòt paj.',
     'Di non yon lang, tankou “Español” oswa “Arabic”. Rekonesans vwa itilize lang navigatè w epi li ka voye odyo bay founisè sèvis li a. Ark pa sove odyo.'
   ],
   ko: [
@@ -152,7 +152,7 @@ window.ARK_SITE_I18N = {
     '시범 서비스입니다. 우편번호는 대략적인 위치를 나타냅니다. Ark는 경보를 놓치거나 이용 불가능할 수 있습니다. 현지 공식 지침을 따르고 다음을 확인하세요:',
     '. 긴급 상황에는 911로 전화하세요.','계정 및 경보 서비스를 준비 중입니다. 다음 주소로 이메일을 보내세요:','사전 신청을 위해 연락해 주세요.',
     '언어 변경','웹사이트 언어','언어 이름 말하기','인식한 내용 (수정 가능)','원하는 언어로 Ark 웹사이트를 읽으세요.',
-    '이 페이지에서 즉시 변경됩니다. 선택 사항은 이 기기에 저장됩니다.',
+    '이 페이지에서 즉시 변경됩니다. 다른 페이지를 열면 언어를 다시 감지합니다.',
     '“Español”이나 “Arabic”처럼 언어 이름을 말하세요. 음성 인식은 브라우저 언어를 사용하며 음성을 해당 서비스 제공자에게 보낼 수 있습니다. Ark는 음성을 저장하지 않습니다.'
   ],
   ru: [
@@ -172,7 +172,7 @@ window.ARK_SITE_I18N = {
     'Пилотный сервис. Почтовый индекс определяет примерное местоположение. Ark может пропускать предупреждения или быть недоступен. Следуйте официальным местным указаниям и проверяйте',
     '. В экстренной ситуации звоните 911.','Сервисы учётных записей и предупреждений настраиваются. Напишите на','чтобы записаться.',
     'Сменить язык','Язык сайта','Произнесите название языка','Что мы услышали (можно исправить)','Читайте сайт Ark на своём языке.',
-    'Изменения сразу применяются на этой странице. Выбор сохраняется на этом устройстве.',
+    'Изменения сразу применяются на этой странице. При открытии другой страницы язык определяется заново.',
     'Произнесите название языка, например «Español» или «Arabic». Распознавание речи использует язык браузера и может передавать аудио поставщику речевого сервиса. Ark не сохраняет аудио.'
   ],
   tl: [
@@ -192,7 +192,7 @@ window.ARK_SITE_I18N = {
     'Paunang serbisyo. Tinatayang lokasyon lamang ang ibinibigay ng ZIP code. Maaaring hindi matanggap ng Ark ang ilang babala o maaaring hindi ito gumana. Sundin ang opisyal na gabay sa inyong lugar at tingnan ang',
     '. Sa emerhensiya, tumawag sa 911.','Inihahanda pa ang serbisyo ng mga account at babala. Mag-email sa','para sumali sa listahan.',
     'Palitan ang wika','Wika ng website','Sabihin ang pangalan ng wika','Ang narinig namin (maaari mong baguhin)','Basahin ang website ng Ark sa iyong wika.',
-    'Agad na magbabago ang pahinang ito. Naka-save ang iyong pinili sa device na ito.',
+    'Agad na magbabago ang pahinang ito. Muling tutukuyin ang wika kapag nagbukas ka ng ibang pahina.',
     'Sabihin ang pangalan ng wika, gaya ng “Español” o “Arabic”. Ginagamit ng pagkilala sa boses ang wika ng browser at maaaring ipadala ang audio sa tagapagbigay ng serbisyong iyon. Hindi nagse-save ng audio ang Ark.'
   ]
 };
@@ -215,3 +215,4 @@ window.ARK_SITE_I18N = {
   d.keys.push(...keys);
   for(const [code,phrases]of Object.entries(packs))d[code].push(...phrases);
 })();
+
