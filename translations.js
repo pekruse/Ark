@@ -196,3 +196,22 @@ window.ARK_SITE_I18N = {
     'Sabihin ang pangalan ng wika, gaya ng “Español” o “Arabic”. Ginagamit ng pagkilala sa boses ang wika ng browser at maaaring ipadala ang audio sa tagapagbigay ng serbisyong iyon. Hindi nagse-save ng audio ang Ark.'
   ]
 };
+// The app concept uses the same language choice as the surrounding website.
+(() => {
+  const d=window.ARK_SITE_I18N;
+  const keys=['APP PREVIEW','Your community. Your language.','Hello, we’re here for you.','⌖ Your area · Example','🌐 English','Alerts for you','Example','⚠ WEATHER ALERT','Flash flood warning','Until 9:00 p.m. Move to higher ground immediately.','Sample message · Not a current alert','View original message ↗','Help near you','Check official resources in your area.','Clear information, when it matters most.','Home','Community','Settings'];
+  const packs={
+    es:['VISTA PREVIA','Tu comunidad. Tu idioma.','Hola, estamos contigo.','⌖ Tu zona · Ejemplo','🌐 Español','Alertas para ti','Ejemplo','⚠ ALERTA METEOROLÓGICA','Alerta de inundación repentina','Hasta las 9:00 p. m. Vaya de inmediato a un lugar más alto.','Mensaje de ejemplo · No es una alerta actual','Ver mensaje original ↗','Ayuda cerca de ti','Consulta los recursos oficiales de tu localidad.','Información clara, cuando más importa.','Inicio','Comunidad','Ajustes'],
+    'zh-CN':['应用预览','您的社区。您的语言。','您好，我们与您同在。','⌖ 您的区域 · 示例','🌐 中文','您的警报','示例','⚠ 天气警报','山洪警报','持续至晚上 9 点。请立即前往地势较高的地方。','示例信息 · 非当前警报','查看原始信息 ↗','附近的帮助','请查阅您所在地区的官方资源。','在最重要的时刻，提供清晰的信息。','首页','社区','设置'],
+    vi:['XEM TRƯỚC','Cộng đồng của bạn. Ngôn ngữ của bạn.','Xin chào, chúng tôi ở đây cùng bạn.','⌖ Khu vực của bạn · Ví dụ','🌐 Tiếng Việt','Cảnh báo cho bạn','Ví dụ','⚠ CẢNH BÁO THỜI TIẾT','Cảnh báo lũ quét','Đến 9 giờ tối. Hãy di chuyển ngay đến nơi cao hơn.','Tin nhắn mẫu · Không phải cảnh báo hiện tại','Xem tin nhắn gốc ↗','Trợ giúp gần bạn','Xem các nguồn chính thức tại địa phương.','Thông tin rõ ràng khi cần nhất.','Trang chủ','Cộng đồng','Cài đặt'],
+    ar:['معاينة التطبيق','مجتمعك. لغتك.','مرحبًا، نحن هنا من أجلك.','⌖ منطقتك · مثال','🌐 العربية','تنبيهات لك','مثال','⚠ تنبيه جوي','تحذير من سيول مفاجئة','حتى الساعة التاسعة مساءً. انتقل فورًا إلى مكان أعلى.','رسالة تجريبية · ليست تنبيهًا حاليًا','عرض الرسالة الأصلية ↗','مساعدة بالقرب منك','راجع الموارد الرسمية في منطقتك.','معلومات واضحة عندما تكون أهم ما تحتاج إليه.','الرئيسية','المجتمع','الإعدادات'],
+    ht:['APÈSI APLIKASYON','Kominote w. Lang ou.','Bonjou, nou la pou ou.','⌖ Zòn ou · Egzanp','🌐 Kreyòl ayisyen','Alèt pou ou','Egzanp','⚠ ALÈT METEYO','Avètisman inondasyon rapid','Jiska 9è nan aswè. Ale nan yon kote ki pi wo touswit.','Mesaj egzanp · Se pa yon alèt aktyèl','Gade mesaj orijinal la ↗','Èd toupre ou','Tcheke resous ofisyèl nan zòn ou.','Enfòmasyon klè, lè sa pi enpòtan.','Akèy','Kominote','Paramèt'],
+    ko:['앱 미리보기','나의 지역사회. 나의 언어.','안녕하세요, 여러분과 함께합니다.','⌖ 내 지역 · 예시','🌐 한국어','나를 위한 경보','예시','⚠ 기상 경보','돌발 홍수 경보','오후 9시까지. 즉시 더 높은 곳으로 이동하세요.','예시 메시지 · 현재 경보가 아닙니다','원문 보기 ↗','주변 도움','해당 지역의 공식 안내를 확인하세요.','가장 중요한 순간에 명확한 정보.','홈','지역사회','설정'],
+    ru:['МАКЕТ ПРИЛОЖЕНИЯ','Ваше сообщество. Ваш язык.','Здравствуйте, мы рядом.','⌖ Ваш район · Пример','🌐 Русский','Предупреждения для вас','Пример','⚠ ПОГОДНОЕ ПРЕДУПРЕЖДЕНИЕ','Предупреждение о внезапном наводнении','До 21:00. Немедленно переместитесь на возвышенность.','Пример сообщения · Не текущее предупреждение','Посмотреть оригинал ↗','Помощь рядом','Проверьте официальные ресурсы вашего района.','Понятная информация в самый важный момент.','Главная','Сообщество','Настройки'],
+    tl:['PREVIEW NG APP','Komunidad mo. Wika mo.','Kumusta, nandito kami para sa iyo.','⌖ Iyong lugar · Halimbawa','🌐 Tagalog','Mga babala para sa iyo','Halimbawa','⚠ BABALA SA PANAHON','Babala sa biglaang pagbaha','Hanggang 9:00 ng gabi. Pumunta agad sa mas mataas na lugar.','Halimbawang mensahe · Hindi kasalukuyang babala','Tingnan ang orihinal ↗','Tulong na malapit sa iyo','Tingnan ang mga opisyal na mapagkukunan sa inyong lugar.','Malinaw na impormasyon kapag kailangang-kailangan.','Home','Komunidad','Mga setting']
+  };
+  // The original mockup contains this English label instead of the Spanish pack text.
+  d.aliases={'APP PREVIEW':d.keys.length};
+  d.keys.push(...keys);
+  for(const [code,phrases]of Object.entries(packs))d[code].push(...phrases);
+})();
