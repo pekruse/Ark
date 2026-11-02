@@ -55,6 +55,39 @@
     return matches.size===1?[...matches][0]:null;
   }
 
+
+  // Small spelling/transcription changes, grouped by target language.
+  function nameDistance(a,b){
+    a=Array.from(a);b=Array.from(b);
+    const rows=Array.from({length:a.length+1},()=>Array(b.length+1).fill(0));
+    for(let i=0;i<=a.length;i++)rows[i][0]=i;
+    for(let j=0;j<=b.length;j++)rows[0][j]=j;
+    for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++){
+      rows[i][j]=Math.min(rows[i-1][j]+1,rows[i][j-1]+1,rows[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+      if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])rows[i][j]=Math.min(rows[i][j],rows[i-2][j-2]+1);
+    }
+    return rows[a.length][b.length];
+  }
+  function fuzzyLanguageName(text){
+    const value=cleanName(text);if(value.length>80)return null;
+    const exact=matchLanguageName(value);if(exact)return exact;
+    // Fuzzy matching is only for a name, not a sentence with several choices.
+    const compact=value.replace(/ /g,'');
+    if(Array.from(compact).length<5||value.split(' ').length>3)return null;
+    const scores=new Map();
+    for(const [name,codes] of nameIndex){
+      const target=name.replace(/ /g,''),length=Math.max(Array.from(compact).length,Array.from(target).length);
+      if(length<5||Math.abs(compact.length-target.length)>2)continue;
+      const distance=nameDistance(compact,target),limit=length>=9?2:1;
+      const score=1-distance/length;
+      if(distance>limit||score<0.8)continue;
+      for(const code of codes)scores.set(code,Math.max(scores.get(code)||0,score));
+    }
+    const ranked=[...scores].sort((a,b)=>b[1]-a[1]);
+    if(!ranked.length||(ranked[1]&&ranked[0][1]-ranked[1][1]<0.12))return null;
+    return ranked[0][0];
+  }
+
   const original=new WeakMap(),lookup=new Map(data.keys.map((key,i)=>[key,i]));
   // Page components may recreate translated text nodes. Resolve every language
   // back to a stable phrase index so repeated switches never get stuck.
@@ -129,7 +162,7 @@
           if(Array.from(e.results).some(result=>result.isFinal)){
             clearInterval(typingTimer);transcript.value=words;
             const finalResult=Array.from(e.results).filter(result=>result.isFinal).at(-1);
-            const candidates=new Set(Array.from(finalResult||[]).map(item=>matchLanguageName(item.transcript)).filter(Boolean));
+            const candidates=new Set(Array.from(finalResult||[]).map(item=>fuzzyLanguageName(item.transcript)).filter(Boolean));
             const found=matchLanguageName(words);
             if(found)change(found);else if(candidates.size===1)change([...candidates][0]);
             if(dialog.open)status.textContent='Please choose the language from the list if it was not recognized.';
