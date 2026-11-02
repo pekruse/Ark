@@ -1,6 +1,5 @@
 (() => {
   if(window.__arkGlobe)return;window.__arkGlobe=true;
-  const scriptURL=new URL(document.currentScript.src);
   async function dependency(url,test){if(test())return;await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=reject;document.head.append(s);});}
   async function boot(){
     const hero=document.querySelector('.hero'),column=hero?.querySelector(':scope > div'),heading=column?.querySelector('h1');if(!heading){setTimeout(boot,200);return;}
