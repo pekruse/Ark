@@ -4,6 +4,9 @@
   const data=window.ARK_SITE_I18N,normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
   const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']]];
   const original=new WeakMap(),lookup=new Map(data.keys.map((key,i)=>[key,i]));
+  // Page components may recreate translated text nodes. Resolve every language
+  // back to a stable phrase index so repeated switches never get stuck.
+  for(const language of languages){if(language[0]!=='en')data[language[0]].forEach((text,i)=>lookup.set(text,i));}
   let code='en',selected=false,applying=false,dialog,selector,transcript,status,voiceButton,recognition,timer;
   try{const saved=localStorage.getItem('ark-site-language');if(languages.some(l=>l[0]===saved)){code=saved;selected=true;}}catch{}
   const tr=i=>code==='en'?data.keys[i]:data[code][i];
@@ -60,3 +63,4 @@
   // The existing page bundle can render content after this script loads.
   apply();setTimeout(apply,500);
 })();
+
