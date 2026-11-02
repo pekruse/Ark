@@ -3,6 +3,58 @@
   window.__arkInstantLanguage=true;
   const data=window.ARK_SITE_I18N,normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
   const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']],['he','עברית (Hebrew)',['hebrew','ivrit','עברית']],['la','Latina (Latin)',['latin','latina','lingua latina']],['hi','हिन्दी (Hindi)',['hindi','हिन्दी','हिंदी']],['fr','Français',['french','francais']],['bn','বাংলা (Bengali)',['bengali','bangla','বাংলা']],['pt','Português',['portuguese','portugues']],['id','Bahasa Indonesia',['indonesian','bahasa indonesia']],['ur','اردو (Urdu)',['urdu','اردو']]];
+
+  // Build language-name aliases from the browser's Unicode CLDR translations.
+  const nameIndex=new Map();
+  const cleanName=text=>text.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  function addName(name,code){
+    const key=cleanName(name);if(!key||key===code.toLowerCase())return;
+    if(!nameIndex.has(key))nameIndex.set(key,new Set());
+    nameIndex.get(key).add(code);
+  }
+  for(const [code,label,aliases] of languages){
+    for(const name of aliases)addName(name,code);
+    addName(label,code);
+  }
+  const namingLocales=['en','es','fr','de','it','pt','nl','pl','uk','ru','ar','he','fa','tr','hi','bn','ur','zh','ja','ko','vi','id','ms','tl','ht','la','sw','ta','te','th','el','ro','hu','cs','sv','da','fi','no'];
+  if(typeof Intl.DisplayNames==='function'){
+    for(const locale of Intl.DisplayNames.supportedLocalesOf(namingLocales)){
+      try{
+        const names=new Intl.DisplayNames([locale],{type:'language'});
+        for(const [code] of languages){
+          for(const tag of code==='zh-CN'?['zh','zh-Hans','zh-CN']:code==='tl'?['tl','fil']:[code]){
+            const name=names.of(tag);if(name&&name!==tag)addName(name,code);
+          }
+        }
+      }catch{}
+    }
+  }
+  // Common spoken forms not always supplied by CLDR.
+  for(const [code,names] of Object.entries({
+    es:['espagnol','espanhol','Spanisch','西班牙语','西班牙語'],
+    en:['anglais','inglês','Englisch','英语','英語'],
+    fr:['francés','francês','Französisch','法语','法語'],
+    'zh-CN':['mandarin chinese','mandarin','chinois','chino','中文','普通话','普通話'],
+    he:['hébreu','hebreo','hebraico','עברית'],
+    ar:['arabe','árabe','العربية'],
+    ht:['créole haïtien','criollo haitiano','kreyòl ayisyen'],
+    la:['latín','latim','latein','lingua latina']
+  }))for(const name of names)addName(name,code);
+  function matchLanguageName(text){
+    const value=cleanName(text),exact=nameIndex.get(value);
+    if(exact)return exact.size===1?[...exact][0]:null;
+    const matches=new Set();
+    for(const [name,codes] of nameIndex){
+      const pos=value.indexOf(name);if(pos<0)continue;
+      // Require complete words; avoid mistaking unrelated words for a language.
+      const before=value.slice(0,pos),after=value.slice(pos+name.length);
+      const bounded=(!before||before.endsWith(' '))&&(!after||after.startsWith(' '));
+      const cjk=/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(name);
+      if(bounded||cjk)for(const code of codes)matches.add(code);
+    }
+    return matches.size===1?[...matches][0]:null;
+  }
+
   const original=new WeakMap(),lookup=new Map(data.keys.map((key,i)=>[key,i]));
   // Page components may recreate translated text nodes. Resolve every language
   // back to a stable phrase index so repeated switches never get stuck.
@@ -65,18 +117,21 @@
       for(const [value,label]of languages){const opt=document.createElement('option');opt.value=value;opt.textContent=label;selector.append(opt);}
       selector.addEventListener('change',()=>change(selector.value));
       dialog.querySelector('.language-close').onclick=()=>dialog.close();dialog.addEventListener('close',stop);dialog.addEventListener('cancel',stop);
-      transcript.addEventListener('input',()=>{const text=normalize(transcript.value);const found=languages.find(l=>l[2].some(alias=>{const key=normalize(alias);return /^[a-z ]+$/.test(key)?new RegExp('(?:^|\\s)'+key+'(?:$|\\s|[.!?,])').test(text):text.includes(key);}));if(found)change(found[0]);});
+      transcript.addEventListener('input',()=>{const found=matchLanguageName(transcript.value);if(found)change(found);});
       const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
       if(!Speech){voiceButton.disabled=true;voiceButton.title='Voice input is unavailable in this browser. Use the language list.';}
       voiceButton.onclick=()=>{
         if(recognition){stop();return;}
-        recognition=new Speech();recognition.lang=navigator.language||'en-US';recognition.continuous=false;recognition.interimResults=true;
+        recognition=new Speech();recognition.lang=navigator.language||'en-US';recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=5;
         recognition.onresult=e=>{
           const words=Array.from(e.results).map(result=>result[0].transcript).join(' ');
           animateTranscript(words);
           if(Array.from(e.results).some(result=>result.isFinal)){
             clearInterval(typingTimer);transcript.value=words;
-            transcript.dispatchEvent(new Event('input'));
+            const finalResult=Array.from(e.results).filter(result=>result.isFinal).at(-1);
+            const candidates=new Set(Array.from(finalResult||[]).map(item=>matchLanguageName(item.transcript)).filter(Boolean));
+            const found=matchLanguageName(words);
+            if(found)change(found);else if(candidates.size===1)change([...candidates][0]);
             if(dialog.open)status.textContent='Please choose the language from the list if it was not recognized.';
           }
         };
