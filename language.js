@@ -1,6 +1,7 @@
 (() => {
   if (window.__arkLanguageUI) return;
   window.__arkLanguageUI = true;
+  const buttonStyle=document.createElement('style');buttonStyle.textContent='.ark-change-language{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #D8C3A7;background:#F5EDE3;color:#6B4A2A;border-radius:999px;min-height:40px;padding:8px 13px;font:600 13px system-ui;cursor:pointer}.ark-change-language:focus-visible{outline:3px solid #AD814A;outline-offset:3px}html[data-theme=dark] .ark-change-language{background:#33291E;color:#E7C99F;border-color:#6E5637}';document.head.append(buttonStyle);
   const languages = [
     ['en','English',['english','ingles']], ['es','Español',['spanish','espanol','español','castellano']],
     ['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']], ['vi','Tiếng Việt',['vietnamese','tieng viet','tiếng việt']],
@@ -49,3 +50,4 @@
   }
   window.addEventListener('click',e=>{if(e.target.closest?.('.ark-change-language'))open();},true);
 })();
+
