@@ -2,18 +2,18 @@
   if(window.__arkInstantLanguage || !window.ARK_SITE_I18N)return;
   window.__arkInstantLanguage=true;
   const data=window.ARK_SITE_I18N,normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-  const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']]];
+  const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']],['he','עברית (Hebrew)',['hebrew','ivrit','עברית']],['la','Latina (Latin)',['latin','latina','lingua latina']]];
   const original=new WeakMap(),lookup=new Map(data.keys.map((key,i)=>[key,i]));
   // Page components may recreate translated text nodes. Resolve every language
   // back to a stable phrase index so repeated switches never get stuck.
   for(const language of languages){if(language[0]!=='en')data[language[0]].forEach((text,i)=>lookup.set(text,i));}
   for(const [text,index]of Object.entries(data.aliases||{}))lookup.set(text,index);
-  function browserLanguage(){for(const tag of navigator.languages||[navigator.language||'en']){const root=tag.toLowerCase().split('-')[0],candidate=root==='zh'?'zh-CN':root==='fil'?'tl':root;if(languages.some(l=>l[0]===candidate))return candidate;}return 'en';}
+  function browserLanguage(){for(const tag of navigator.languages||[navigator.language||'en']){const root=tag.toLowerCase().split('-')[0],candidate=root==='zh'?'zh-CN':root==='fil'?'tl':root==='iw'?'he':root;if(languages.some(l=>l[0]===candidate))return candidate;}return 'en';}
   function countryLanguage(country){
     if(['ES','MX','GT','HN','SV','NI','CR','PA','CU','DO','PR','CO','VE','EC','PE','BO','PY','CL','AR','UY','GQ'].includes(country))return 'es';
     if(['CN','TW','HK','MO'].includes(country))return 'zh-CN';
     if(['SA','AE','EG','IQ','JO','LB','SY','YE','OM','QA','BH','KW','PS','SD','DZ','MA','TN','LY','MR'].includes(country))return 'ar';
-    return {VN:'vi',HT:'ht',KR:'ko',RU:'ru',PH:'tl',US:'en',GB:'en',AU:'en',NZ:'en',IE:'en'}[country]||browserLanguage();
+    return {IL:'he',VN:'vi',HT:'ht',KR:'ko',RU:'ru',PH:'tl',US:'en',GB:'en',AU:'en',NZ:'en',IE:'en'}[country]||browserLanguage();
   }
   let code='en',selected=false,manual=false,applying=false,dialog,selector,transcript,status,voiceButton,recognition,timer;
   code=browserLanguage();selected=code!=='en';try{localStorage.removeItem('ark-site-language')}catch{}
@@ -22,7 +22,7 @@
   function apply(){
     if(!document.body||applying)return;applying=true;observer.disconnect();
     try{
-      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=code==='ar'?'rtl':'ltr';
+      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=['ar','he'].includes(code)?'rtl':'ltr';
       const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
       while(node=walker.nextNode()){
         const parent=node.parentElement;
@@ -32,19 +32,20 @@
         const target=index===undefined?source:source.replace(source.trim(),tr(index));
         if(node.nodeValue!==target)node.nodeValue=target;
       }
-      const heading=document.querySelector('h1.rot');if(heading){heading.querySelectorAll('span[lang]').forEach(span=>{const lang=span.lang==='zh'?'zh-CN':span.lang;const current=lang===code;span.dataset.headlineCurrent=String(current);span.setAttribute('aria-hidden',String(!current));});}if(selected)document.title='Ark · '+(heading?data.headlines[code]:tr(29));
+      const heading=document.querySelector('h1.rot');if(heading){heading.querySelectorAll('span[lang]').forEach(span=>{const lang=span.lang==='zh'?'zh-CN':span.lang;const current=lang===code||(!heading.querySelector('span[lang="'+code+'"]')&&lang==='en');span.dataset.headlineCurrent=String(current);span.setAttribute('aria-hidden',String(!current));});}if(selected)document.title='Ark · '+(heading?data.headlines[code]:tr(29));
       document.querySelectorAll('.ark-change-language').forEach(b=>{b.textContent='🌐 '+data.labels[code][0];b.setAttribute('aria-label',data.labels[code][0]);});
       const dark=document.documentElement.dataset.theme==='dark';
       document.querySelectorAll('.ark-theme-toggle').forEach(b=>{b.textContent=(dark?'☀ ':'☾ ')+data.labels[code][dark?2:1];});
       document.querySelectorAll('.ark-device-stage').forEach(el=>el.dir='ltr');document.querySelectorAll('.ark-screen').forEach(el=>el.lang=code);
       document.querySelectorAll('.ark-device[role=img]').forEach(el=>el.setAttribute('aria-label',tr(28)));
       if(selector)selector.value=code;
-      if(voiceButton&&!recognition)voiceButton.textContent='🎙 '+tr(37);
+      if(voiceButton&&!recognition)voiceLabel();
     }finally{applying=false;observer.observe(document.body,{childList:true,subtree:true,characterData:true});}
   }
-  function stop(){clearTimeout(timer);try{recognition?.abort();}catch{}recognition=null;if(voiceButton)voiceButton.textContent='🎙 '+tr(37);}
+  function voiceLabel(listening=false){if(!voiceButton)return;voiceButton.innerHTML="<svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"8\" y=\"2\" width=\"8\" height=\"13\" rx=\"4\"/><path d=\"M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8\"/></svg>"+'<span></span>';voiceButton.querySelector('span').textContent=listening?'■ Stop':tr(37);voiceButton.setAttribute('aria-pressed',String(listening));}
+  function stop(){clearTimeout(timer);try{recognition?.abort();}catch{}recognition=null;if(voiceButton)voiceLabel();}
   function change(value){if(!languages.some(l=>l[0]===value))return;stop();code=value;selected=true;manual=true;apply();dialog?.close();}
-  const buttonStyle=document.createElement('style');buttonStyle.textContent=`.ark-change-language{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #D8C3A7;background:#F5EDE3;color:#6B4A2A;border-radius:999px;min-height:40px;padding:8px 13px;font:600 13px system-ui;cursor:pointer}.ark-language-dialog{font:16px/1.5 system-ui,sans-serif;max-width:470px;width:calc(100% - 32px);box-sizing:border-box;padding:28px;border:1px solid #D8C3A7;border-radius:22px;background:#FFFCF7;color:#2B2118;box-shadow:0 24px 90px #0005}.ark-language-dialog::backdrop{background:#100C08AA}.ark-language-dialog h2{font:700 27px/1.2 system-ui;margin:0 40px 14px 0}.ark-language-dialog p{font-size:14px;margin:12px 0}.ark-language-dialog label{display:block;font-size:14px;margin:15px 0}.ark-language-dialog select,.ark-language-dialog input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px;border:1px solid #BDA789;border-radius:10px;background:white;color:#2B2118;font:inherit}.ark-language-dialog button{font:600 14px system-ui;cursor:pointer;border:1px solid #BDA789;border-radius:10px;padding:12px;background:#F5EDE3;color:#573D24}.ark-language-dialog .language-close{float:right;padding:7px 12px;font-size:18px}.ark-language-dialog button:disabled{opacity:.55;cursor:default}.ark-language-dialog :focus-visible,.ark-change-language:focus-visible{outline:3px solid #BB8F54;outline-offset:3px}html[data-theme=dark] .ark-language-dialog{background:#29231D;color:#F3EADC;border-color:#68533A}html[data-theme=dark] .ark-language-dialog p{color:#CEBFAC!important}html[data-theme=dark] .ark-language-dialog select,html[data-theme=dark] .ark-language-dialog input{background:#171513;color:#F3EADC}html[data-theme=dark] .ark-language-dialog button,html[data-theme=dark] .ark-change-language{background:#33291E;color:#E7C99F;border-color:#6E5637}`;document.head.append(buttonStyle);
+  const buttonStyle=document.createElement('style');buttonStyle.textContent=`.ark-change-language{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #D8C3A7;background:#F5EDE3;color:#6B4A2A;border-radius:999px;min-height:40px;padding:8px 13px;font:600 13px system-ui;cursor:pointer}.ark-language-dialog{font:16px/1.5 system-ui,sans-serif;max-width:470px;width:calc(100% - 32px);box-sizing:border-box;padding:28px;border:1px solid #D8C3A7;border-radius:22px;background:#FFFCF7;color:#2B2118;box-shadow:0 24px 90px #0005}.ark-language-dialog::backdrop{background:#100C08AA}.ark-language-dialog h2{font:700 27px/1.2 system-ui;margin:0 40px 14px 0}.ark-language-dialog p{font-size:14px;margin:12px 0}.ark-language-dialog label{display:block;font-size:14px;margin:15px 0}.ark-language-dialog select,.ark-language-dialog input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px;border:1px solid #BDA789;border-radius:10px;background:white;color:#2B2118;font:inherit}.ark-language-dialog button{font:600 14px system-ui;cursor:pointer;border:1px solid #BDA789;border-radius:10px;padding:12px;background:#F5EDE3;color:#573D24}.ark-language-dialog .language-close{float:right;padding:7px 12px;font-size:18px}.ark-language-dialog button:disabled{opacity:.55;cursor:default}.ark-language-dialog :focus-visible,.ark-change-language:focus-visible{outline:3px solid #BB8F54;outline-offset:3px}html[data-theme=dark] .ark-language-dialog{background:#29231D;color:#F3EADC;border-color:#68533A}html[data-theme=dark] .ark-language-dialog p{color:#CEBFAC!important}html[data-theme=dark] .ark-language-dialog select,html[data-theme=dark] .ark-language-dialog input{background:#171513;color:#F3EADC}html[data-theme=dark] .ark-language-dialog button,html[data-theme=dark] .ark-change-language{background:#33291E;color:#E7C99F;border-color:#6E5637}`;buttonStyle.textContent+=' #ark-language-voice{display:inline-flex;align-items:center;gap:12px;min-height:54px;padding:12px 18px;font-size:16px}#ark-language-voice svg{width:28px;height:28px;flex:none}#ark-language-voice[aria-pressed=true]{outline:3px solid #BB8F54;outline-offset:2px}';document.head.append(buttonStyle);
   function open(){
     if(!dialog){
       dialog=document.createElement('dialog');dialog.className='ark-language-dialog';dialog.setAttribute('aria-labelledby','ark-language-title');
@@ -61,8 +62,8 @@
         recognition=new Speech();recognition.lang=navigator.language||'en-US';recognition.continuous=false;recognition.interimResults=false;
         recognition.onresult=e=>{transcript.value=e.results[0][0].transcript;transcript.dispatchEvent(new Event('input'));if(dialog.open)status.textContent='Please choose the language from the list if it was not recognized.';};
         recognition.onerror=()=>{status.textContent='Voice input could not be completed. Please use the language list.';};
-        recognition.onend=()=>{recognition=null;clearTimeout(timer);voiceButton.textContent='🎙 '+tr(37);};
-        try{recognition.start();voiceButton.textContent='■ Stop';timer=setTimeout(stop,10000);}catch{stop();}
+        recognition.onend=()=>{recognition=null;clearTimeout(timer);voiceLabel();};
+        try{recognition.start();voiceLabel(true);timer=setTimeout(stop,10000);}catch{stop();}
       };
     }
     status.textContent='';transcript.value='';apply();dialog.showModal();
