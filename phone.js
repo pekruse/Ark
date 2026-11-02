@@ -1,5 +1,13 @@
 (() => {
  if(window.__arkPhoneMotion)return;window.__arkPhoneMotion=true;
+ function updateClock(){
+  const clock=document.querySelector('.ark-statusbar > span:first-child');if(!clock)return;
+  const now=new Date(),formatter=new Intl.DateTimeFormat(navigator.language||'en',{hour:'numeric',minute:'2-digit'});
+  const text=formatter.format(now);if(clock.textContent!==text)clock.textContent=text;
+  clock.setAttribute('aria-label',text);clock.lang=navigator.language||'en';
+ }
+ updateClock();setTimeout(updateClock,600);setInterval(updateClock,1000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateClock();});
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let frame=0,current=0,target=0;
  function render(){
