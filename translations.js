@@ -723,3 +723,6 @@ Object.assign(window.ARK_SITE_I18N,{
 });
 Object.assign(window.ARK_SITE_I18N.labels,{"hi":["भाषा बदलें","डार्क मोड","लाइट मोड"],"fr":["Changer de langue","Mode sombre","Mode clair"],"bn":["ভাষা পরিবর্তন করুন","ডার্ক মোড","লাইট মোড"],"pt":["Mudar idioma","Modo escuro","Modo claro"],"id":["Ubah bahasa","Mode gelap","Mode terang"],"ur":["زبان تبدیل کریں","تاریک موڈ","روشن موڈ"]});
 Object.assign(window.ARK_SITE_I18N.headlines,{"hi":"सुरक्षा हर भाषा बोलती है","fr":"La sécurité parle toutes les langues","bn":"নিরাপত্তা সব ভাষায় কথা বলে","pt":"A segurança fala todos os idiomas","id":"Keselamatan berbicara dalam setiap bahasa","ur":"حفاظت ہر زبان بولتی ہے"});
+
+// Join-only call to action and company footer.
+(()=>{const d=window.ARK_SITE_I18N;const old=d.keys[25];d.aliases[old]=3;d.keys[25]=d.keys[3];for(const [code,phrases]of Object.entries(d)){if(Array.isArray(phrases)&&code!=="keys")phrases[25]=phrases[3];}d.keys[27]="© 2026 Ark Development Solutions. All rights reserved.";for(const [code,phrases]of Object.entries(d)){if(Array.isArray(phrases)&&code!=="keys")phrases[27]=d.keys[27];}})();
