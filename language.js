@@ -206,5 +206,5 @@
     }
     if(manual)return;code=countryLanguage(country);selected=true;keepVisitLanguage();apply();
   }
-  automaticCountry().finally(()=>{keepVisitLanguage();setTimeout(()=>{if(!languagePromptShown)open();},600);});
+  automaticCountry().finally(keepVisitLanguage);
 })();
