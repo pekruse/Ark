@@ -102,7 +102,7 @@
   }
   let code='en',selected=false,manual=false,applying=false,dialog,selector,transcript,status,voiceButton,recognition,timer;
   code=browserLanguage();let carried=false,previewBase=null;
-  try{localStorage.removeItem('ark-site-language');const visit=sessionStorage.getItem('ark-visit-language');if(languages.some(item=>item[0]===visit)){code=visit;carried=true;manual=true;}}catch{}
+  try{localStorage.removeItem('ark-site-language');const visit=sessionStorage.getItem('ark-visit-language');if(/account\.html$/.test(location.pathname)&&languages.some(item=>item[0]===visit)){code=visit;carried=true;manual=true;}else{sessionStorage.removeItem('ark-visit-language');sessionStorage.removeItem('ark-country');}}catch{}
   selected=code!=='en';
   function keepVisitLanguage(){try{sessionStorage.setItem('ark-visit-language',code);}catch{}}
   const tr=i=>code==='en'?data.keys[i]:data[code][i];
