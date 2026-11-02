@@ -726,3 +726,6 @@ Object.assign(window.ARK_SITE_I18N.headlines,{"hi":"सुरक्षा हर
 
 // Join-only call to action and company footer.
 (()=>{const d=window.ARK_SITE_I18N;const old=d.keys[25];d.aliases[old]=3;d.keys[25]=d.keys[3];for(const [code,phrases]of Object.entries(d)){if(Array.isArray(phrases)&&code!=="keys")phrases[25]=phrases[3];}d.keys[27]="© 2026 Ark Development Solutions. All rights reserved.";for(const [code,phrases]of Object.entries(d)){if(Array.isArray(phrases)&&code!=="keys")phrases[27]=d.keys[27];}})();
+
+// Clear demonstration label for the phone concept.
+(()=>{const d=window.ARK_SITE_I18N,labels={"en":"Demo preview only","es":"Solo vista previa de demostración","zh-CN":"仅供演示预览","vi":"Chỉ là bản xem trước minh họa","ar":"معاينة تجريبية فقط","ht":"Apèsi demonstrasyon sèlman","ko":"데모 미리보기 전용","ru":"Только демонстрационный просмотр","tl":"Demo preview lamang","he":"תצוגת הדגמה בלבד","la":"Exemplum demonstrativum tantum","hi":"केवल डेमो पूर्वावलोकन","fr":"Aperçu de démonstration uniquement","bn":"শুধু ডেমো পূর্বদর্শন","pt":"Apenas prévia de demonstração","id":"Hanya pratinjau demo","ur":"صرف ڈیمو پیش منظر"};d.aliases[d.keys[28]]=28;d.keys[28]=labels.en;for(const [code,label]of Object.entries(labels))if(code!=="en")d[code][28]=label;})();
