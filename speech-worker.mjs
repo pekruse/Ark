@@ -1,4 +1,4 @@
-import {createDetector} from './speech-core.mjs';
+import {createDetector} from './speech-core.mjs?v=2';
 import * as runtime from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 let detector;
 self.onmessage=async event=>{
