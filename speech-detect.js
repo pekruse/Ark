@@ -20,7 +20,7 @@
     if(data.type==='error'){loading=null;reject(Error(data.message));if(!closed){setStatus(data.message);button.disabled=false;}}
     if(data.type==='result'&&data.id===requestId&&!closed&&dialog.open){
      button.disabled=false;const result=data.result,code=({zh:'zh-CN',fil:'tl',iw:'he'})[result.language]||result.language;
-     const option=Array.from(dialog.querySelector('select').options).find(o=>o.value===code);
+     const option=Array.from(dialog.querySelector('select').options).find(o=>o.value===code&&!o.disabled);
      if(!option){setStatus('Detected '+result.language+', which is not available in the website language menu yet.');return;}
      const choose=()=>window.dispatchEvent(new CustomEvent('ark-language-commit',{detail:{code}}));
      if(result.confidence>=.8&&result.margin>=.25){setStatus('Detected '+option.textContent);choose();}
