@@ -42,6 +42,7 @@
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw Error('Microphone access is unavailable. Please use the language list.');
    setStatus('Loading speech engine…');await load();if(closed)return;
+   setStatus('Speech engine ready. Allow microphone access in your browser to begin.');
    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});
    if(closed){stopTracks();return;}
    context=new AudioContext();await context.resume();source=context.createMediaStreamSource(stream);node=context.createScriptProcessor(4096,1,1);sink=context.createGain();sink.gain.value=0;source.connect(node);node.connect(sink);sink.connect(context.destination);
