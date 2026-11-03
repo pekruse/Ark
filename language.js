@@ -3,6 +3,8 @@
   window.__arkInstantLanguage=true;
   const data=window.ARK_SITE_I18N,normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
   const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']],['he','עברית (Hebrew)',['hebrew','ivrit','עברית']],['la','Latina (Latin)',['latin','latina','lingua latina']],['hi','हिन्दी (Hindi)',['hindi','हिन्दी','हिंदी']],['fr','Français',['french','francais']],['bn','বাংলা (Bengali)',['bengali','bangla','বাংলা']],['pt','Português',['portuguese','portugues']],['id','Bahasa Indonesia',['indonesian','bahasa indonesia']],['ur','اردو (Urdu)',['urdu','اردو']]];
+  languages.push(...[["de","Deutsch",[]],["it","Italiano",[]],["nl","Nederlands",[]],["ro","Română",[]],["pl","Polski",[]],["ja","日本語",[]],["tr","Türkçe",[]],["uk","Українська",[]],["ms","Bahasa Melayu",[]],["sw","Kiswahili",[]],["fa","فارسی",[]],["th","ไทย",[]],["mr","मराठी",[]],["ne","नेपाली",[]],["uz","O‘zbekcha",[]],["ha","Hausa",[]],["so","Soomaali",[]],["yo","Yorùbá",[]],["zu","isiZulu",[]],["ta","தமிழ்",[]],["te","తెలుగు",[]],["kn","ಕನ್ನಡ",[]],["ml","മലയാളം",[]],["gu","ગુજરાતી",[]],["pa","ਪੰਜਾਬੀ",[]],["or","ଓଡ଼ିଆ",[]],["sd","سنڌي",[]]]);
+
 
   // Build language-name aliases from the browser's Unicode CLDR translations.
   const nameIndex=new Map();
@@ -94,12 +96,7 @@
   for(const language of languages){if(language[0]!=='en')data[language[0]].forEach((text,i)=>lookup.set(text,i));}
   for(const [text,index]of Object.entries(data.aliases||{}))lookup.set(text,index);
   function browserLanguage(){for(const tag of navigator.languages||[navigator.language||'en']){const root=tag.toLowerCase().split('-')[0],candidate=root==='zh'?'zh-CN':root==='fil'?'tl':root==='iw'?'he':root;if(languages.some(l=>l[0]===candidate))return candidate;}return 'en';}
-  function countryLanguage(country){
-    if(['ES','MX','GT','HN','SV','NI','CR','PA','CU','DO','PR','CO','VE','EC','PE','BO','PY','CL','AR','UY','GQ'].includes(country))return 'es';
-    if(['CN','TW','HK','MO'].includes(country))return 'zh-CN';
-    if(['SA','AE','EG','IQ','JO','LB','SY','YE','OM','QA','BH','KW','PS','SD','DZ','MA','TN','LY','MR'].includes(country))return 'ar';
-    return {IN:'hi',FR:'fr',BE:'fr',MC:'fr',BJ:'fr',BF:'fr',CD:'fr',CG:'fr',CI:'fr',GA:'fr',GN:'fr',ML:'fr',NE:'fr',SN:'fr',TG:'fr',BD:'bn',PT:'pt',BR:'pt',AO:'pt',MZ:'pt',CV:'pt',GW:'pt',ST:'pt',ID:'id',PK:'ur',IL:'he',VN:'vi',HT:'ht',KR:'ko',RU:'ru',PH:'tl',US:'en',GB:'en',AU:'en',NZ:'en',IE:'en'}[country]||browserLanguage();
-  }
+  function countryLanguage(country){return window.arkCountryLanguage?.(country).code||browserLanguage();}
   let code='en',selected=false,manual=false,applying=false,dialog,selector,transcript,status,voiceButton,recognition,timer;
   code=browserLanguage();let carried=false,previewBase=null;
   try{localStorage.removeItem('ark-site-language');const visit=sessionStorage.getItem('ark-visit-language');if(/account\.html$/.test(location.pathname)&&languages.some(item=>item[0]===visit)){code=visit;carried=true;manual=true;}else{sessionStorage.removeItem('ark-visit-language');sessionStorage.removeItem('ark-country');}}catch{}
@@ -110,7 +107,7 @@
   function apply(){
     if(!document.body||applying)return;applying=true;observer.disconnect();
     try{
-      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=['ar','he','ur'].includes(code)?'rtl':'ltr';
+      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=['ar','he','ur','fa','sd'].includes(code)?'rtl':'ltr';
       const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
       while(node=walker.nextNode()){
         const parent=node.parentElement;
