@@ -3,6 +3,8 @@
   window.__arkInstantLanguage=true;
   const data=window.ARK_SITE_I18N,normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
   const languages=[['en','English',['english','ingles']],['es','Español',['spanish','espanol','castellano']],['zh-CN','中文',['chinese','mandarin','中文','汉语','普通话']],['vi','Tiếng Việt',['vietnamese','tieng viet']],['ar','العربية',['arabic','العربية','عربي']],['ht','Kreyòl ayisyen',['haitian creole','kreyol','creole']],['ko','한국어',['korean','한국어']],['ru','Русский',['russian','русский']],['tl','Tagalog',['tagalog','filipino']],['he','עברית (Hebrew)',['hebrew','ivrit','עברית']],['la','Latina (Latin)',['latin','latina','lingua latina']],['hi','हिन्दी (Hindi)',['hindi','हिन्दी','हिंदी']],['fr','Français',['french','francais']],['bn','বাংলা (Bengali)',['bengali','bangla','বাংলা']],['pt','Português',['portuguese','portugues']],['id','Bahasa Indonesia',['indonesian','bahasa indonesia']],['ur','اردو (Urdu)',['urdu','اردو']]];
+  languages.push(...[["sv","Svenska",[]],["no","Norsk",[]],["da","Dansk",[]],["fi","Suomi",[]],["cs","Čeština",[]],["el","Ελληνικά",[]],["sq","Shqip",[]],["ca","Català",[]],["hy","Հայերեն",[]],["az","Azərbaycanca",[]],["be","Беларуская",[]],["bs","Bosanski",[]],["bg","Български",[]],["km","ខ្មែរ",[]],["hr","Hrvatski",[]],["et","Eesti",[]],["am","አማርኛ",[]],["ka","ქართული",[]],["hu","Magyar",[]],["is","Íslenska",[]],["kk","Қазақша",[]],["ky","Кыргызча",[]],["lo","ລາວ",[]],["lv","Latviešu",[]],["lt","Lietuvių",[]],["lb","Lëtzebuergesch",[]],["ny","Chichewa",[]],["mt","Malti",[]],["mn","Монгол",[]],["sr","Српски",[]],["my","မြန်မာ",[]],["mk","Македонски",[]],["rw","Kinyarwanda",[]],["sm","Gagana Samoa",[]],["sk","Slovenčina",[]],["sl","Slovenščina",[]],["si","සිංහල",[]],["tg","Тоҷикӣ",[]],["tk","Türkmençe",[]]]);
+
   languages.push(...[["de","Deutsch",[]],["it","Italiano",[]],["nl","Nederlands",[]],["ro","Română",[]],["pl","Polski",[]],["ja","日本語",[]],["tr","Türkçe",[]],["uk","Українська",[]],["ms","Bahasa Melayu",[]],["sw","Kiswahili",[]],["fa","فارسی",[]],["th","ไทย",[]],["mr","मराठी",[]],["ne","नेपाली",[]],["uz","O‘zbekcha",[]],["ha","Hausa",[]],["so","Soomaali",[]],["yo","Yorùbá",[]],["zu","isiZulu",[]],["ta","தமிழ்",[]],["te","తెలుగు",[]],["kn","ಕನ್ನಡ",[]],["ml","മലയാളം",[]],["gu","ગુજરાતી",[]],["pa","ਪੰਜਾਬੀ",[]],["or","ଓଡ଼ିଆ",[]],["sd","سنڌي",[]]]);
 
 
@@ -107,7 +109,7 @@
   function apply(){
     if(!document.body||applying)return;applying=true;observer.disconnect();
     try{
-      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=['ar','he','ur','fa','sd'].includes(code)?'rtl':'ltr';
+      document.documentElement.lang=code;document.documentElement.dir='ltr';document.documentElement.dataset.textDirection=['ar','he','ur','fa','sd','dv'].includes(code)?'rtl':'ltr';
       const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
       while(node=walker.nextNode()){
         const parent=node.parentElement;
@@ -124,7 +126,7 @@
       document.querySelectorAll('.ark-device-stage').forEach(el=>el.dir='ltr');document.querySelectorAll('.ark-screen').forEach(el=>el.lang=code);
       document.querySelectorAll('.ark-device').forEach(el=>{el.setAttribute('role','group');el.setAttribute('aria-label',tr(28));});
       if(selector){selector.value=code;let names;try{names=new Intl.DisplayNames([code],{type:'language'});}catch{}
-        for(const option of selector.options){const item=languages.find(l=>l[0]===option.value);const native=item[1].replace(/ \([^)]*\)$/,'');let translated;try{translated=names?.of(option.value==='zh-CN'?'zh':option.value);}catch{}option.textContent=translated?native+' ('+translated+')':native;option.lang=code;}
+        for(const option of selector.options){const item=languages.find(l=>l[0]===option.value);if(!item){option.textContent=(window.ARK_UNAVAILABLE_LANGUAGES?.[option.value]||option.value)+' — translation unavailable';option.disabled=true;continue;}const native=item[1].replace(/ \([^)]*\)$/,'');let translated;try{translated=names?.of(option.value==='zh-CN'?'zh':option.value);}catch{}option.textContent=translated?native+' ('+translated+')':native;option.lang=code;}
       }
       if(voiceButton&&!recognition)voiceLabel();
     }finally{applying=false;observer.observe(document.body,{childList:true,subtree:true,characterData:true});}
@@ -150,6 +152,7 @@
       dialog.innerHTML='<button type="button" class="language-close" aria-label="Close">×</button><h2 id="ark-language-title">Change language</h2><p>Read the Ark website in your language.</p><label>Website language<select></select></label><button type="button" id="ark-language-voice">🎙 <span>Say a language name</span></button><p>Say a language name, such as “Español” or “Arabic.” Voice recognition uses your browser’s language and may send audio to its speech provider. Ark does not save audio.</p><label>What we heard (you can edit this)<input maxlength="100" autocomplete="off"></label><p role="status" aria-live="polite"></p>';
       document.body.append(dialog);selector=dialog.querySelector('select');transcript=dialog.querySelector('input');status=dialog.querySelector('[role=status]');voiceButton=dialog.querySelector('#ark-language-voice');
       for(const [value,label]of languages){const opt=document.createElement('option');opt.value=value;opt.textContent=label;selector.append(opt);}
+      for(const [value,label]of Object.entries(window.ARK_UNAVAILABLE_LANGUAGES||{})){const opt=document.createElement('option');opt.value=value;opt.disabled=true;opt.textContent=label+' — translation unavailable';selector.append(opt);}
       selector.addEventListener('change',()=>change(selector.value));
       dialog.querySelector('.language-close').onclick=()=>dialog.close();dialog.addEventListener('close',stop);dialog.addEventListener('cancel',stop);
       transcript.addEventListener('input',()=>{const found=matchLanguageName(transcript.value);if(found)change(found);});
