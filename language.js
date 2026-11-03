@@ -8,6 +8,8 @@
   languages.push(...[["de","Deutsch",[]],["it","Italiano",[]],["nl","Nederlands",[]],["ro","Română",[]],["pl","Polski",[]],["ja","日本語",[]],["tr","Türkçe",[]],["uk","Українська",[]],["ms","Bahasa Melayu",[]],["sw","Kiswahili",[]],["fa","فارسی",[]],["th","ไทย",[]],["mr","मराठी",[]],["ne","नेपाली",[]],["uz","O‘zbekcha",[]],["ha","Hausa",[]],["so","Soomaali",[]],["yo","Yorùbá",[]],["zu","isiZulu",[]],["ta","தமிழ்",[]],["te","తెలుగు",[]],["kn","ಕನ್ನಡ",[]],["ml","മലയാളം",[]],["gu","ગુજરાતી",[]],["pa","ਪੰਜਾਬੀ",[]],["or","ଓଡ଼ିଆ",[]],["sd","سنڌي",[]]]);
 
 
+  languages.push(...[["dz","རྫོང་ཁ",[]],["dv","ދިވެހި",[]],["tet","Tetun",[]],["ti","ትግርኛ",[]],["fo","Føroyskt",[]],["to","Lea faka-Tonga",[]]]);
+
   // Build language-name aliases from the browser's Unicode CLDR translations.
   const nameIndex=new Map();
   const cleanName=text=>text.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
