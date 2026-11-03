@@ -10,6 +10,10 @@
 
   languages.push(...[["dz","རྫོང་ཁ",[]],["dv","ދިވެހި",[]],["tet","Tetun",[]],["ti","ትግርኛ",[]],["fo","Føroyskt",[]],["to","Lea faka-Tonga",[]]]);
 
+  const languageNames={"dz":"Dzongkha","dv":"Dhivehi","tet":"Tetum","ti":"Tigrinya","fo":"Faroese","to":"Tongan","aa":"Afar","kl":"Greenlandic","mh":"Marshallese","na":"Nauruan","niu":"Niuean","pau":"Palauan","tkl":"Tokelauan","tvl":"Tuvaluan","bi":"Bislama","wls":"Wallisian"};
+  function displayLanguageName(value,locale){let name;try{name=new Intl.DisplayNames([locale],{type:"language"}).of(value==="zh-CN"?"zh":value);}catch{}return name&&name!==value?name:(languageNames[value]||value);}
+  function unavailableLabel(value){const native=window.ARK_UNAVAILABLE_LANGUAGES[value],name=displayLanguageName(value,code);return native+(name!==native?" ("+name+")":"")+" — translation unavailable";}
+
   // Build language-name aliases from the browser's Unicode CLDR translations.
   const nameIndex=new Map();
   const cleanName=text=>text.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
@@ -74,9 +78,9 @@
     }
     return rows[a.length][b.length];
   }
-  function fuzzyLanguageName(text){
+  function fuzzyLanguageName(text,wholeName=false){
     const value=cleanName(text);if(value.length>80)return null;
-    const exact=matchLanguageName(value);if(exact)return exact;
+    const names=nameIndex.get(value),exact=wholeName?(names?.size===1?[...names][0]:null):matchLanguageName(value);if(exact)return exact;
     // Fuzzy matching is only for a name, not a sentence with several choices.
     const compact=value.replace(/ /g,'');
     if(Array.from(compact).length<5||value.split(' ').length>3)return null;
@@ -93,6 +97,17 @@
     if(!ranked.length||(ranked[1]&&ranked[0][1]-ranked[1][1]<0.12))return null;
     return ranked[0][0];
   }
+
+  // A short language name takes precedence over the language spoken to say it.
+  // Longer speech is classified from its audio instead of matching incidental words.
+  window.arkResolveSpokenLanguage=text=>{
+    const name=cleanName(text).replace(/[.!?]+$/,'');
+    for(const [value,native] of Object.entries(window.ARK_UNAVAILABLE_LANGUAGES||{})){
+      if([native,languageNames[value]].some(label=>label&&cleanName(label)===name))return value;
+    }
+    return name.split(' ').length<=3?fuzzyLanguageName(text,true):null;
+  };
+  window.addEventListener('ark-speech-transcript',event=>{if(transcript&&dialog?.open)animateTranscript(event.detail?.text||'');});
 
   const original=new WeakMap(),lookup=new Map(data.keys.map((key,i)=>[key,i]));
   // Page components may recreate translated text nodes. Resolve every language
@@ -128,12 +143,12 @@
       document.querySelectorAll('.ark-device-stage').forEach(el=>el.dir='ltr');document.querySelectorAll('.ark-screen').forEach(el=>el.lang=code);
       document.querySelectorAll('.ark-device').forEach(el=>{el.setAttribute('role','group');el.setAttribute('aria-label',tr(28));});
       if(selector){selector.value=code;let names;try{names=new Intl.DisplayNames([code],{type:'language'});}catch{}
-        for(const option of selector.options){const item=languages.find(l=>l[0]===option.value);if(!item){option.textContent=(window.ARK_UNAVAILABLE_LANGUAGES?.[option.value]||option.value)+' — translation unavailable';option.disabled=true;continue;}const native=item[1].replace(/ \([^)]*\)$/,'');let translated;try{translated=names?.of(option.value==='zh-CN'?'zh':option.value);}catch{}option.textContent=translated?native+' ('+translated+')':native;option.lang=code;}
+        for(const option of selector.options){const item=languages.find(l=>l[0]===option.value);if(!item){option.textContent=unavailableLabel(option.value);option.disabled=true;continue;}const native=item[1].replace(/ \([^)]*\)$/,'');const translated=displayLanguageName(option.value,code);option.textContent=translated?native+' ('+translated+')':native;option.lang=code;}
       }
-      if(voiceButton&&!recognition)voiceLabel();
+
     }finally{applying=false;observer.observe(document.body,{childList:true,subtree:true,characterData:true});}
   }
-  function voiceLabel(listening=false){if(!voiceButton)return;voiceButton.innerHTML="<svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"8\" y=\"2\" width=\"8\" height=\"13\" rx=\"4\"/><path d=\"M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8\"/></svg>"+'<span></span>';voiceButton.querySelector('span').textContent=listening?'■ Stop':tr(37);voiceButton.setAttribute('aria-pressed',String(listening));if(transcript)transcript.classList.toggle('is-listening',listening);}
+  function voiceLabel(listening=false){if(!voiceButton)return;voiceButton.innerHTML="<svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"8\" y=\"2\" width=\"8\" height=\"13\" rx=\"4\"/><path d=\"M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8\"/></svg>"+'<span></span>';voiceButton.querySelector('span').textContent=listening?'■ Stop':'Speak your language';voiceButton.setAttribute('aria-pressed',String(listening));if(transcript)transcript.classList.toggle('is-listening',listening);}
   let typingTimer;
   function animateTranscript(words){
     clearInterval(typingTimer);
@@ -151,37 +166,19 @@
     languagePromptShown=true;
     if(!dialog){
       dialog=document.createElement('dialog');dialog.className='ark-language-dialog';dialog.setAttribute('aria-labelledby','ark-language-title');
-      dialog.innerHTML='<button type="button" class="language-close" aria-label="Close">×</button><h2 id="ark-language-title">Change language</h2><p>Read the Ark website in your language.</p><label>Website language<select></select></label><button type="button" id="ark-language-voice">🎙 <span>Say a language name</span></button><p>Say a language name, such as “Español” or “Arabic.” Voice recognition uses your browser’s language and may send audio to its speech provider. Ark does not save audio.</p><label>What we heard (you can edit this)<input maxlength="100" autocomplete="off"></label><p role="status" aria-live="polite"></p>';
+      dialog.innerHTML='<button type="button" class="language-close" aria-label="Close">×</button><h2 id="ark-language-title">Change language</h2><p>Read the Ark website in your language.</p><label>Website language<select></select></label><button type="button" id="ark-language-voice">🎙 <span>Say a language name</span></button><p class="ark-voice-help">Say a language name or a full sentence in your language. Audio is processed on this device and is not uploaded. First use downloads a speech model (roughly 75 MB).</p><label>What we heard (you can edit this)<input maxlength="500" autocomplete="off"></label><p role="status" aria-live="polite"></p>';
       document.body.append(dialog);selector=dialog.querySelector('select');transcript=dialog.querySelector('input');status=dialog.querySelector('[role=status]');voiceButton=dialog.querySelector('#ark-language-voice');
       for(const [value,label]of languages){const opt=document.createElement('option');opt.value=value;opt.textContent=label;selector.append(opt);}
-      for(const [value,label]of Object.entries(window.ARK_UNAVAILABLE_LANGUAGES||{})){const opt=document.createElement('option');opt.value=value;opt.disabled=true;opt.textContent=label+' — translation unavailable';selector.append(opt);}
+      for(const [value,label]of Object.entries(window.ARK_UNAVAILABLE_LANGUAGES||{})){const opt=document.createElement('option');opt.value=value;opt.disabled=true;opt.textContent=unavailableLabel(value);selector.append(opt);}
       selector.addEventListener('change',()=>change(selector.value));
       dialog.querySelector('.language-close').onclick=()=>dialog.close();dialog.addEventListener('close',stop);dialog.addEventListener('cancel',stop);
       transcript.addEventListener('input',()=>{const found=matchLanguageName(transcript.value);if(found)change(found);});
-      const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
-      if(!Speech){voiceButton.disabled=true;voiceButton.title='Voice input is unavailable in this browser. Use the language list.';}
-      voiceButton.onclick=()=>{
-        if(recognition){stop();return;}
-        recognition=new Speech();recognition.lang=navigator.language||'en-US';recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=5;
-        recognition.onresult=e=>{
-          const words=Array.from(e.results).map(result=>result[0].transcript).join(' ');
-          animateTranscript(words);
-          if(Array.from(e.results).some(result=>result.isFinal)){
-            clearInterval(typingTimer);transcript.value=words;
-            const finalResult=Array.from(e.results).filter(result=>result.isFinal).at(-1);
-            const candidates=new Set(Array.from(finalResult||[]).map(item=>fuzzyLanguageName(item.transcript)).filter(Boolean));
-            const found=matchLanguageName(words);
-            if(found)change(found);else if(candidates.size===1)change([...candidates][0]);
-            if(dialog.open)status.textContent='Please choose the language from the list if it was not recognized.';
-          }
-        };
-        recognition.onerror=()=>{status.textContent='Voice input could not be completed. Please use the language list.';};
-        recognition.onend=()=>{recognition=null;clearTimeout(timer);voiceLabel();};
-        try{transcript.value='';status.textContent='';recognition.start();voiceLabel(true);timer=setTimeout(stop,10000);}catch{stop();}
-      };
+      voiceLabel();voiceButton.disabled=true;voiceButton.title='Speech engine is loading…';
+
     }
     status.textContent='';transcript.value='';apply();dialog.showModal();
     if(!dialog.querySelector('.ark-location-disclosure')){const note=document.createElement('p');note.className='ark-location-disclosure';note.textContent='ipapi.co estimates your country to suggest a language. Language choices carry across pages for this visit.';dialog.append(note);}
+    window.dispatchEvent(new Event('ark-language-open'));
     (voiceButton.disabled?selector:voiceButton).focus();
   }
   window.addEventListener('click',e=>{if(e.target.closest?.('.ark-change-language'))open();else if(e.target.closest?.('.ark-theme-toggle'))queueMicrotask(apply);},true);
